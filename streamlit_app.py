@@ -254,4 +254,4 @@ def render_export_tab():
     st.markdown("- Reports: PDF with metadata")
 
 if __name__ == "__main__":
-    main()
+    main()# Frontend API client fixes
