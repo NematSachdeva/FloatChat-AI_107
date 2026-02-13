@@ -40,3 +40,4 @@ MAX_FLOATS = int(os.getenv("MAX_FLOATS", "1000"))  # Increased for virtual float
 MAX_DOCUMENTS = int(os.getenv("MAX_DOCUMENTS", "30000"))  # Limited to 30k as requested
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "1000"))
 
+# Config updated for better env loading
