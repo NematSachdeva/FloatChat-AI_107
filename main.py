@@ -620,3 +620,4 @@ async def simple_query(request: QueryRequest):
             "context_documents": [],
             "retrieved_metadata": []
         }
+# ChromaDB and Ollama fixes applied
