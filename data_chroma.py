@@ -64,4 +64,4 @@ for i in range(0,total_rows,batch_size):
         )
         print(f"Added batch {i//batch_size + 1}, total documents: {collection.count()}")
 
-print(f"there are now {collection.count()} documents in the collection")
+print(f"there are now {collection.count()} documents in the collection")# ChromaDB vector store initialization
