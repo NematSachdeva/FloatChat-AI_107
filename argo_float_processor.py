@@ -354,4 +354,4 @@ if __name__ == "__main__":
     ingest_argo_data()
     print("\n" + "="*50)
     print("Sample Data Preview:")
-    get_sample_queries()
+    get_sample_queries()# Enhanced error handling
