@@ -145,4 +145,4 @@ def test_complete_backend():
     print("• Includes BGC parameters (oxygen, pH, chlorophyll)")
 
 if __name__ == "__main__":
-    test_complete_backend()
+    test_complete_backend()# Test suite for all components
