@@ -16,4 +16,4 @@ df_small.to_sql(
     method='multi',       # batch insert for speed
     chunksize=10_000      # insert in 10k row chunks
 )
-print("completed")
+print("completed")# Data ingestion guide added
