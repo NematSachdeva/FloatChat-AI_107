@@ -93,15 +93,18 @@ def clear_existing_data():
     print("Clearing existing ARGO data...")
 
     clear_sql = """
-    DELETE FROM measurements;
-    DELETE FROM profiles;
-    DELETE FROM floats;
+    DROP TABLE IF EXISTS measurements CASCADE;
+    DROP TABLE IF EXISTS profiles CASCADE;
+    DROP TABLE IF EXISTS floats CASCADE;
     """
 
     with engine.connect() as conn:
         for statement in clear_sql.split(';'):
             if statement.strip():
-                conn.execute(text(statement))
+                try:
+                    conn.execute(text(statement))
+                except Exception as e:
+                    print(f"Warning: {e}")
         conn.commit()
 
     print("✅ Existing data cleared!")
@@ -354,4 +357,4 @@ if __name__ == "__main__":
     ingest_argo_data()
     print("\n" + "="*50)
     print("Sample Data Preview:")
-    get_sample_queries()# Enhanced error handling
+    get_sample_queries()# Data ingestion improvements applied
