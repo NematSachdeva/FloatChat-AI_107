@@ -15,9 +15,15 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     if DB_PASSWORD:
-        DATABASE_URL = f"postgresql+psycopg://postgres:{quote_plus(DB_PASSWORD)}@localhost:5432/argo"
+        DATABASE_URL = f"postgresql+psycopg2://postgres:{quote_plus(DB_PASSWORD)}@localhost:5432/argo"
     else:
-        DATABASE_URL = "postgresql+psycopg://nematsachdeva@localhost:5432/argo"
+        DATABASE_URL = "postgresql+psycopg2://localhost:5432/argo"
+
+# Render (and most cloud providers) give a plain postgres:// URL — SQLAlchemy needs the driver prefix
+if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
 
 # LLM Provider — "ollama" (local) | "groq" (cloud, free) | "openai" (cloud)
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "ollama")

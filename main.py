@@ -39,7 +39,15 @@ try:
             return _embed_model.encode(input).tolist()
 
     _ef = _EmbedFn()
-    _chroma = chromadb.PersistentClient(path=config.CHROMA_PATH)
+
+    # Use persistent storage locally; fall back to ephemeral on cloud (no disk)
+    if config.VECTOR_STORE == "persistent":
+        import os
+        os.makedirs(config.CHROMA_PATH, exist_ok=True)
+        _chroma = chromadb.PersistentClient(path=config.CHROMA_PATH)
+    else:
+        _chroma = chromadb.EphemeralClient()
+
     collection = _chroma.get_or_create_collection(
         name="argo_measurements", embedding_function=_ef
     )

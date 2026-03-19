@@ -23,10 +23,8 @@ services:
         fromDatabase:
           name: floatchat-postgres
           property: connectionString
-      - key: CHROMA_PATH
-        value: /opt/render/project/chroma_db
       - key: VECTOR_STORE
-        value: persistent
+        value: memory          # free tier has no persistent disk; use ephemeral ChromaDB
       - key: MAX_DOCUMENTS
         value: "24000"
 
@@ -43,10 +41,7 @@ services:
     healthCheckPath: /_stcore/health
     envVars:
       - key: BACKEND_URL
-        fromService:
-          name: floatchat-backend
-          type: web
-          property: host
+        value: https://floatchat-backend.onrender.com
 
 # ── PostgreSQL Database ──────────────────────────────────────────────────────
 databases:
