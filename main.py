@@ -16,6 +16,8 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy import create_engine
 
+print(f"PORT env var: {os.environ.get('PORT', 'NOT SET')}")
+
 # Imported lazily inside lifespan to avoid blocking port binding
 export_to_ascii = export_to_netcdf = export_to_csv = None
 NLToSQLTranslator = process_analytical_query = None
@@ -306,6 +308,11 @@ async def sql_answer(query: str) -> Optional[dict]:
 # ══════════════════════════════════════════════════════════════════════════════
 # Endpoints
 # ══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/")
+async def root():
+    return {"status": "ok", "service": "FloatChat AI"}
+
 
 @app.get("/health")
 async def health_check():
