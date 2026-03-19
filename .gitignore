@@ -1,43 +1,33 @@
-# Environment variables
+# ── Environment ──────────────────────────────────────────────────────────────
 .env
 .env.local
 .env.*.local
+.env.test
 
-# Python
+# ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
 venv/
+env/
 ENV/
+.venv/
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
 pip-log.txt
-pip-delete-this-directory.txt
 
-# Testing
+# ── Testing ───────────────────────────────────────────────────────────────────
 .pytest_cache/
 .coverage
 htmlcov/
 .tox/
 .hypothesis/
 
-# IDE
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
@@ -46,24 +36,22 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Streamlit
-.streamlit/
+# ── Streamlit ─────────────────────────────────────────────────────────────────
 .streamlit_cache/
+# Keep .streamlit/config.toml tracked (dark theme config)
 
-# Data
+# ── Data & Vector Store ───────────────────────────────────────────────────────
 chroma_db/
+data/
 *.db
 *.sqlite
 *.sqlite3
 *.nc
+*.cdf
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+# ── Logs ──────────────────────────────────────────────────────────────────────
 logs/
-argo_data.cdf
+*.log
 
+# ── Claude ────────────────────────────────────────────────────────────────────
 .claude/

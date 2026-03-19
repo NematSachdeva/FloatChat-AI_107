@@ -1,8 +1,12 @@
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import xarray as xr
 from sqlalchemy import create_engine
 import config
 
-ds = xr.open_dataset("tempsal.nc")
+_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ds = xr.open_dataset(os.path.join(_root, "data", "tempsal.nc"))
 
 df = ds[["TEMP","SAL"]].to_dataframe().reset_index()
 df = df.rename(columns={'TAXIS': 'time', 'ZAX': 'depth', 'YAXIS': 'lat', 'XAXIS': 'lon', 'TEMP': 'temperature','SAL': 'salinity'})

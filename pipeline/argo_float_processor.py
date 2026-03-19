@@ -3,6 +3,9 @@ Real ARGO Float Data Processor
 Processes actual ARGO float profiles instead of gridded data
 """
 
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import xarray as xr
 import pandas as pd
 import numpy as np

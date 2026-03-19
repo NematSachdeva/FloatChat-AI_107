@@ -3,6 +3,9 @@ ChromaDB ingestion for proper ARGO float data structure
 Creates embeddings that understand float profiles and relationships
 """
 
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from sqlalchemy import create_engine
 import pandas as pd
 import chromadb
