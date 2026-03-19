@@ -13,7 +13,7 @@ sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.9
 
 # Vector Store
-chromadb==0.4.24
+chromadb>=0.5.23
 sentence-transformers>=2.2.0
 
 # LLM — local
