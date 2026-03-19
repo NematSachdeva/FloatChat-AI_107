@@ -26,16 +26,13 @@ collection = None
 nl_translator = None
 
 
-# ── Lifespan: all heavy init happens AFTER port is bound ─────────────────────
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+# ── Background init (runs AFTER port is open) ─────────────────────────────────
+async def _background_init():
+    """Load all heavy components after the port is already bound."""
     global engine, collection, nl_translator
     global export_to_ascii, export_to_netcdf, export_to_csv
     global NLToSQLTranslator, process_analytical_query
 
-    print("Starting up FloatChat AI...")
-
-    # Lazy imports — done here so port binds before any heavy work
     try:
         from export_utils import (
             export_to_ascii as _ea,
@@ -54,17 +51,15 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"NL-to-SQL import failed: {e}")
 
-    # Database
     try:
         engine = create_engine(config.DATABASE_URL)
         print("Database engine created")
     except Exception as e:
         print(f"Database init failed: {e}")
 
-    # NL→SQL
     try:
         if NLToSQLTranslator:
-            nl_translator = NLToSQLTranslator()
+            nl_translator = await asyncio.to_thread(NLToSQLTranslator)
             print("NL→SQL translator ready")
     except Exception as e:
         print(f"NL translator init failed: {e}")
@@ -74,7 +69,9 @@ async def lifespan(app: FastAPI):
         import chromadb
         from sentence_transformers import SentenceTransformer
 
-        _embed_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        _embed_model = await asyncio.to_thread(
+            SentenceTransformer, "sentence-transformers/all-MiniLM-L6-v2"
+        )
 
         class _EmbedFn:
             def __call__(self, input):
@@ -98,7 +95,14 @@ async def lifespan(app: FastAPI):
         print(f"ChromaDB init failed: {e}")
         collection = None
 
-    print("Startup complete.")
+    print("Background init complete.")
+
+
+# ── Lifespan: yields immediately so port opens, then fires background init ────
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("FloatChat AI starting — port binding now.")
+    asyncio.create_task(_background_init())
     yield
     print("Shutting down.")
 
