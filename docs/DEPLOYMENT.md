@@ -11,7 +11,7 @@ Before your first deploy, ensure build context is small:
 
 1. Create a new Railway service from this repo.
 2. Attach PostgreSQL plugin.
-3. Railway will use `railway.json`/`Procfile` for startup.
+3. Railway uses `railway.json` startup script. Set `SERVICE_ROLE=backend`.
 4. Set environment variables:
 
 ```env
@@ -31,10 +31,10 @@ curl https://<backend>.up.railway.app/health
 
 ### 2. Frontend Service (Streamlit)
 
-Create a second Railway service from the same repository and set start command:
+Create a second Railway service from the same repository and set env variable:
 
-```bash
-streamlit run streamlit_app.py --server.address=0.0.0.0 --server.port=$PORT
+```env
+SERVICE_ROLE=frontend
 ```
 
 Set frontend env:
