@@ -9,10 +9,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sqlalchemy import create_engine
 import pandas as pd
 import chromadb
-from sentence_transformers import SentenceTransformer
+from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 import config
-
-embed_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 client = chromadb.EphemeralClient() if config.VECTOR_STORE == "memory" else chromadb.PersistentClient(path=config.CHROMA_PATH)
 
@@ -23,12 +21,7 @@ try:
 except:
     pass
 
-class CustomEmbeddingFunction:
-    def __call__(self, input):
-        embeddings = embed_model.encode(input)
-        return embeddings.tolist()
-
-ef = CustomEmbeddingFunction()
+ef = DefaultEmbeddingFunction()
 
 collection = client.get_or_create_collection(
     name="argo_measurements",

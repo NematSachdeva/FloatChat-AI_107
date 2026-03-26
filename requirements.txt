@@ -14,7 +14,6 @@ psycopg2-binary>=2.9.9
 
 # Vector Store
 chromadb>=0.5.23
-sentence-transformers>=2.2.0
 
 # LLM — local (install manually: pip install ollama==0.1.7)
 # ollama intentionally excluded — conflicts with httpx>=0.27 required by chromadb

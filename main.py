@@ -67,22 +67,12 @@ async def _background_init():
     except Exception as e:
         print(f"NL translator init failed: {e}")
 
-    # ChromaDB + embeddings (downloads ~90 MB model — done post-startup)
+    # ChromaDB + lightweight default embeddings (no torch dependency)
     try:
         import chromadb
-        from sentence_transformers import SentenceTransformer
+        from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 
-        _embed_model = await asyncio.to_thread(
-            SentenceTransformer, "sentence-transformers/all-MiniLM-L6-v2"
-        )
-
-        class _EmbedFn:
-            def __call__(self, input):
-                if isinstance(input, str):
-                    input = [input]
-                return _embed_model.encode(input).tolist()
-
-        _ef = _EmbedFn()
+        _ef = DefaultEmbeddingFunction()
 
         if config.VECTOR_STORE == "persistent":
             os.makedirs(config.CHROMA_PATH, exist_ok=True)

@@ -2,6 +2,11 @@
 
 ## Railway (Recommended)
 
+Before your first deploy, ensure build context is small:
+- Keep `.dockerignore` in repository root.
+- Exclude local folders such as `venv/`, `.venv/`, `chroma_db/`, `data/`, and `logs/`.
+- Deploy from GitHub (not local upload) so ignored files are not sent to build context.
+
 ### 1. Backend Service
 
 1. Create a new Railway service from this repo.
@@ -70,3 +75,4 @@ ARGO_INDEX_PATH=argo_synthetic-profile_index.txt
 - `LLM request failed`: check API key for the selected `LLM_PROVIDER`.
 - Slow startup on cloud: first start downloads embeddings model.
 - Chroma persistence on Railway: prefer `VECTOR_STORE=memory`.
+- `Image size exceeded limit`: verify `.dockerignore` is present and that heavy local folders are excluded from build context.
