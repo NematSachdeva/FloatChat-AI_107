@@ -40,9 +40,20 @@ class APIException(Exception):
 
 class APIClient:
     """Client for interacting with the FastAPI backend"""
+
+    @staticmethod
+    def _normalize_base_url(base_url: str) -> str:
+        value = (base_url or "").strip()
+        if value.startswith(("http://", "https://")):
+            return value
+
+        if value.startswith(("localhost", "127.0.0.1")):
+            return f"http://{value}"
+
+        return f"https://{value}"
     
     def __init__(self, base_url: str = "http://localhost:8000", max_retries: int = 3, retry_delay: float = 0.3):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = self._normalize_base_url(base_url).rstrip('/')
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         self.session = requests.Session()
