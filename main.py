@@ -15,6 +15,7 @@ from fastapi import FastAPI
 from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy import create_engine
+from utils.llm_provider import chat_completion
 
 print(f"PORT env var: {os.environ.get('PORT', 'NOT SET')}")
 
@@ -149,32 +150,7 @@ def classify(query: str) -> str:
 
 # ── LLM call (non-blocking) ───────────────────────────────────────────────────
 def _llm_sync(messages: list) -> str:
-    provider = config.LLM_PROVIDER.lower()
-
-    if provider == "groq":
-        from groq import Groq
-        client = Groq(api_key=config.GROQ_API_KEY)
-        resp = client.chat.completions.create(
-            model=config.LLM_MODEL,
-            messages=messages,
-            max_tokens=1024,
-        )
-        return resp.choices[0].message.content
-
-    if provider == "openai":
-        from openai import OpenAI
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
-        resp = client.chat.completions.create(
-            model=config.LLM_MODEL,
-            messages=messages,
-            max_tokens=1024,
-        )
-        return resp.choices[0].message.content
-
-    # Default: Ollama (local)
-    import ollama as _ollama
-    resp = _ollama.chat(model=config.LLM_MODEL, messages=messages)
-    return resp["message"]["content"]
+    return chat_completion(messages=messages, max_tokens=1024, temperature=0.1)
 
 
 async def llm(messages: list) -> str:

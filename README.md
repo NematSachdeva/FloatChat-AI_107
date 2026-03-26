@@ -9,7 +9,7 @@ An intelligent oceanographic data analysis platform powered by AI, combining RAG
   - Semantic search using ChromaDB for descriptive queries
   - NL-to-SQL translation for analytical queries
 - **Interactive Dashboard**: Visualize ocean temperature, salinity, and depth data
-- **Multiple LLM Support**: Works with both Ollama (local) and HuggingFace models
+- **Multiple LLM Support**: Works with local Ollama and cloud providers (Groq, OpenAI, OpenRouter)
 - **Real-time Data Processing**: Process and analyze ARGO float measurements
 - **Export Capabilities**: Export data in CSV, NetCDF, and ASCII formats
 
@@ -19,7 +19,7 @@ An intelligent oceanographic data analysis platform powered by AI, combining RAG
 - **Frontend**: Streamlit
 - **Database**: PostgreSQL
 - **Vector Store**: ChromaDB
-- **LLM**: Ollama (gemma2:2b) / HuggingFace
+- **LLM**: Ollama (local) / Groq / OpenAI / OpenRouter (free-tier models)
 - **Embeddings**: nomic-embed-text / sentence-transformers
 
 ## 📋 Prerequisites
@@ -95,6 +95,11 @@ OLLAMA_HOST=http://localhost:11434
 LLM_MODEL=gemma2:2b
 EMBEDDING_MODEL=nomic-embed-text:latest
 
+# Free online model option (OpenRouter)
+# LLM_PROVIDER=openrouter
+# LLM_MODEL=qwen/qwen3-8b:free
+# OPENROUTER_API_KEY=your_openrouter_key
+
 # ChromaDB Configuration
 CHROMA_PATH=./chroma_db
 VECTOR_STORE=persistent
@@ -127,6 +132,32 @@ In a new terminal:
 cd floatchat-ai
 source venv/bin/activate
 streamlit run streamlit_app.py
+
+## 🌍 Use Global Argo Dataset (Seanoe GDAC)
+
+To ingest real global Argo profile data from DOI `10.17882/42182`:
+
+```bash
+python pipeline/ingest_seanoe_argo.py
+python pipeline/data_chroma_floats.py
+```
+
+Notes:
+- `pipeline/ingest_seanoe_argo.py` reads the GDAC profile index and ingests a sampled subset (`ARGO_MAX_PROFILES`) into PostgreSQL.
+- Increase `ARGO_MAX_PROFILES` gradually as your DB/storage budget allows.
+
+## 🚂 Railway Deployment
+
+This repository now includes `railway.json` and `Procfile` for backend deployment.
+
+Recommended setup on Railway:
+1. Create a backend service from this repo (uses `Procfile`/`railway.json`).
+2. Add a PostgreSQL plugin and set `DATABASE_URL` from Railway.
+3. Set environment variables: `LLM_PROVIDER`, `LLM_MODEL`, provider API key, `VECTOR_STORE=memory`.
+4. Deploy and verify `/health`.
+5. Create a second Railway service for Streamlit using start command:
+  `streamlit run streamlit_app.py --server.address=0.0.0.0 --server.port=$PORT`
+6. Set frontend `BACKEND_URL` to your backend Railway URL.
 ```
 
 ### Access the Application

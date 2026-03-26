@@ -41,7 +41,7 @@ class APIException(Exception):
 class APIClient:
     """Client for interacting with the FastAPI backend"""
     
-    def __init__(self, base_url: str = "http://localhost:8000", max_retries: int = 1, retry_delay: float = 0.3):
+    def __init__(self, base_url: str = "http://localhost:8000", max_retries: int = 3, retry_delay: float = 0.3):
         self.base_url = base_url.rstrip('/')
         self.max_retries = max_retries
         self.retry_delay = retry_delay
@@ -119,6 +119,7 @@ class APIClient:
         try:
             response = self._make_request('GET', '/health', timeout=2)
             data = self._validate_response(response)
+            self._is_connected = data.get("status") == "healthy"
             self._last_health_check = datetime.now()
             return data
         except APIException as e:
