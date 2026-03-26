@@ -1,88 +1,78 @@
 # FloatChat AI - Deployment Guide
 
-## Quick Start
+## Railway (Recommended)
 
-### Prerequisites
-- Python 3.13+
-- PostgreSQL
-- Ollama
-- Git
+Before your first deploy, ensure build context is small:
+- Keep `.dockerignore` in repository root.
+- Exclude local folders such as `venv/`, `.venv/`, `chroma_db/`, `data/`, and `logs/`.
+- Deploy from GitHub (not local upload) so ignored files are not sent to build context.
 
-### Installation Steps
+### 1. Backend Service
 
-1. **Clone Repository**
-```bash
-git clone https://github.com/NematSachdeva/FloatChat-AI_107.git
-cd FloatChat-AI_107/floatchat-ai
+1. Create a new Railway service from this repo.
+2. Attach PostgreSQL plugin.
+3. Railway uses `railway.json` startup script. Set `SERVICE_ROLE=backend`.
+4. Set environment variables:
+
+```env
+DATABASE_URL=<Railway Postgres URL>
+LLM_PROVIDER=openrouter
+LLM_MODEL=qwen/qwen3-8b:free
+OPENROUTER_API_KEY=<your key>
+VECTOR_STORE=memory
+MAX_DOCUMENTS=24000
 ```
 
-2. **Setup Virtual Environment**
-```bash
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-3. **Configure Environment**
-```bash
-cp .env.example .env
-# Edit .env with your settings
-```
-
-4. **Setup Database**
-```bash
-createdb argo
-```
-
-5. **Install Ollama Models**
-```bash
-ollama pull gemma2:2b
-ollama pull nomic-embed-text:latest
-```
-
-6. **Start Services**
-
-Terminal 1 - Ollama:
-```bash
-ollama serve
-```
-
-Terminal 2 - Backend:
-```bash
-./start_backend.sh
-```
-
-Terminal 3 - Frontend:
-```bash
-./start_frontend.sh
-```
-
-## Access Points
-
-- Frontend: http://localhost:8501
-- Backend API: http://127.0.0.1:8000
-- API Docs: http://127.0.0.1:8000/docs
-
-## Data Ingestion
-
-After setup, ingest ARGO data:
+5. Verify health endpoint:
 
 ```bash
-python argo_float_processor.py
+curl https://<backend>.up.railway.app/health
 ```
 
-## Production Deployment
+### 2. Frontend Service (Streamlit)
 
-For production, use:
-- Gunicorn for FastAPI
-- Nginx as reverse proxy
-- PostgreSQL with backups
-- Docker for containerization
+Create a second Railway service from the same repository and set env variable:
+
+```env
+SERVICE_ROLE=frontend
+```
+
+Set frontend env:
+
+```env
+BACKEND_URL=https://<backend>.up.railway.app
+```
+
+## Free Online LLM Options
+
+- `openrouter` (recommended): supports free models including Qwen variants.
+- `groq`: free tier with fast inference.
+- `openai`: paid fallback.
+- `ollama`: local development fallback.
+
+## Dataset Ingestion (Seanoe / GDAC)
+
+Use real global Argo data source referenced by:
+- Seanoe DOI page: `https://www.seanoe.org/data/00311/42182/`
+
+Run ingestion:
+
+```bash
+python pipeline/ingest_seanoe_argo.py
+python pipeline/data_chroma_floats.py
+```
+
+Tune with env variables:
+
+```env
+ARGO_MAX_PROFILES=250
+ARGO_GDAC_HTTP_BASE=https://data-argo.ifremer.fr/
+ARGO_INDEX_PATH=argo_synthetic-profile_index.txt
+```
 
 ## Troubleshooting
 
-- Backend 500 errors: Check Ollama is running
-- ChromaDB errors: Reinitialize with `rm -rf chroma_db/`
-- Database errors: Verify PostgreSQL connection
-
-See README.md for detailed documentation.
+- `LLM request failed`: check API key for the selected `LLM_PROVIDER`.
+- Slow startup on cloud: first start downloads embeddings model.
+- Chroma persistence on Railway: prefer `VECTOR_STORE=memory`.
+- `Image size exceeded limit`: verify `.dockerignore` is present and that heavy local folders are excluded from build context.

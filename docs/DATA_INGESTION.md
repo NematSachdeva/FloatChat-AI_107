@@ -8,6 +8,9 @@ This guide explains how to ingest ARGO float data into FloatChat AI for semantic
 
 ### Step 1: Prepare Your Data
 
+Primary source for production:
+- Seanoe Argo GDAC dataset DOI page: `https://www.seanoe.org/data/00311/42182/`
+
 FloatChat AI supports multiple data formats:
 
 - **NetCDF Files** (.nc) - Standard oceanographic format
@@ -42,19 +45,43 @@ Biogeochemical Parameters (Optional):
 
 ### Step 3: Data Ingestion Methods
 
-#### Method 1: Using ARGO Float Processor (Recommended)
+#### Method 1: Using Seanoe/GDAC Ingestion (Recommended for production)
+
+```bash
+python pipeline/ingest_seanoe_argo.py
+python pipeline/data_chroma_floats.py
+```
+
+This method fetches profile paths from the Argo index and ingests a sampled subset into PostgreSQL.
+
+#### Method 1B: One-command automated ingestion (local snapshot + indexing)
+
+For downloaded snapshots like `202601-BgcArgoSprof`:
+
+```bash
+python -m pipeline.automate_ingestion \
+	--local-snapshot-dir "/Users/you/Downloads/202601-BgcArgoSprof" \
+	--local-glob "dac/**/*_Sprof.nc" \
+	--max-profiles 0
+```
+
+Notes:
+- `--max-profiles 0` means ingest all discovered files.
+- This command ingests into PostgreSQL and then builds Chroma index automatically.
+
+#### Method 2: Using ARGO Float Processor (Synthetic/local fallback)
 
 ```bash
 python argo_float_processor.py
 ```
 
-#### Method 2: Direct PostgreSQL Import
+#### Method 3: Direct PostgreSQL Import
 
 ```bash
 python data_postgresql.py
 ```
 
-#### Method 3: ChromaDB Vector Embedding
+#### Method 4: ChromaDB Vector Embedding
 
 ```bash
 python data_chroma_floats.py

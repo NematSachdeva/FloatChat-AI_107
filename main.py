@@ -15,6 +15,7 @@ from fastapi import FastAPI
 from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy import create_engine
+from utils.llm_provider import chat_completion
 
 print(f"PORT env var: {os.environ.get('PORT', 'NOT SET')}")
 
@@ -66,22 +67,12 @@ async def _background_init():
     except Exception as e:
         print(f"NL translator init failed: {e}")
 
-    # ChromaDB + embeddings (downloads ~90 MB model — done post-startup)
+    # ChromaDB + lightweight default embeddings (no torch dependency)
     try:
         import chromadb
-        from sentence_transformers import SentenceTransformer
+        from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 
-        _embed_model = await asyncio.to_thread(
-            SentenceTransformer, "sentence-transformers/all-MiniLM-L6-v2"
-        )
-
-        class _EmbedFn:
-            def __call__(self, input):
-                if isinstance(input, str):
-                    input = [input]
-                return _embed_model.encode(input).tolist()
-
-        _ef = _EmbedFn()
+        _ef = DefaultEmbeddingFunction()
 
         if config.VECTOR_STORE == "persistent":
             os.makedirs(config.CHROMA_PATH, exist_ok=True)
@@ -149,32 +140,7 @@ def classify(query: str) -> str:
 
 # ── LLM call (non-blocking) ───────────────────────────────────────────────────
 def _llm_sync(messages: list) -> str:
-    provider = config.LLM_PROVIDER.lower()
-
-    if provider == "groq":
-        from groq import Groq
-        client = Groq(api_key=config.GROQ_API_KEY)
-        resp = client.chat.completions.create(
-            model=config.LLM_MODEL,
-            messages=messages,
-            max_tokens=1024,
-        )
-        return resp.choices[0].message.content
-
-    if provider == "openai":
-        from openai import OpenAI
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
-        resp = client.chat.completions.create(
-            model=config.LLM_MODEL,
-            messages=messages,
-            max_tokens=1024,
-        )
-        return resp.choices[0].message.content
-
-    # Default: Ollama (local)
-    import ollama as _ollama
-    resp = _ollama.chat(model=config.LLM_MODEL, messages=messages)
-    return resp["message"]["content"]
+    return chat_completion(messages=messages, max_tokens=1024, temperature=0.1)
 
 
 async def llm(messages: list) -> str:

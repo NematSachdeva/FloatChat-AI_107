@@ -1,0 +1,43 @@
+# Keep Docker/Railway build context small
+.git
+.gitignore
+
+# Python environments and caches
+venv/
+.venv/
+ENV/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local config/secrets
+.env
+.env.*
+!.env.example
+
+# Large data and generated stores
+chroma_db/
+data/
+logs/
+*.sqlite
+*.sqlite3
+*.db
+*.nc
+*.cdf
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+*.egg-info/

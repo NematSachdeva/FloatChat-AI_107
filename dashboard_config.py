@@ -10,7 +10,7 @@ class DashboardConfig:
     """Configuration class for Streamlit dashboard"""
     
     # API Configuration
-    API_BASE_URL: str = "http://localhost:8000"
+    API_BASE_URL: str = config.BACKEND_URL
     API_TIMEOUT: int = 30
     
     # Map Configuration
